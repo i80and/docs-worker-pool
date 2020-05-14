@@ -36,7 +36,7 @@ html:
 clean-html:
 	rm -rf build/${GIT_BRANCH}
 	giza make html
-	
+
 publish:
 	giza make publish
 	if [ ${GIT_BRANCH} = master ]; then mut-redirects config/redirects -o build/public/.htaccess; fi
@@ -54,7 +54,7 @@ deploy: build/public
 
 	$(MAKE) deploy-search-index
 
-	
+
 next-gen-html:
 	# snooty parse and then build-front-end
 	@-echo ${SNOOTY_DB_PWD} | snooty build "${REPO_DIR}" "mongodb+srv://${SNOOTY_DB_USR}:@cluster0-ylwlz.mongodb.net/snooty?retryWrites=true" --commit "${COMMIT_HASH}" || exit 0;
@@ -70,7 +70,7 @@ next-gen-html:
 next-gen-stage: ## Host online for review
 	mut-publish public ${STAGING_BUCKET} --prefix="${COMMIT_HASH}/${PROJECT}" --stage ${ARGS}
 	@echo "Hosted at ${STAGING_URL}/${COMMIT_HASH}/${PROJECT}/${USER}/${GIT_BRANCH}/"
-	
+
 next-gen-publish:
 	# snooty parse and then build-front-end
 	# no published branches for now on this repo
@@ -85,7 +85,7 @@ next-gen-publish:
 	echo "COMMIT_HASH=${COMMIT_HASH}" >> .env.production; \
 	npm run build; \
 	cp -r "${REPO_DIR}/snooty/public" ${REPO_DIR};
-	
+
 next-gen-deploy:
 	yes | mut-publish public ${PRODUCTION_BUCKET} --prefix=${PROJECT} --deploy --all-subdirectories ${ARGS}
 	@echo "Hosted at ${PRODUCTION_URL}/${PROJECT}/index.html"
@@ -106,7 +106,7 @@ deploy-search-index:
 next-gen-deploy-search-index:
 	@echo "Building search index"
 	if [ ${STABLE_BRANCH_NEXT_GEN} = ${GIT_BRANCH} ]; then \
-		mut-index upload build/public/${GIT_BRANCH} -o ${PROJECT}-current.json --aliases ${PROJECT}-${GIT_BRANCH} -u ${PRODUCTION_URL}/${PROJECT}/stable -g -s; \
+		mut-index upload public -o ${PROJECT}-current.json --aliases ${PROJECT}-${GIT_BRANCH} -u ${PRODUCTION_URL}/${PROJECT}/stable -g -s; \
 	else \
-		mut-index upload build/public/${GIT_BRANCH} -o ${PROJECT}-${GIT_BRANCH}.json -u ${PRODUCTION_URL}/${PROJECT}/${GIT_BRANCH} -s; \
+		mut-index upload public -o ${PROJECT}-${GIT_BRANCH}.json -u ${PRODUCTION_URL}/${PROJECT}/${GIT_BRANCH} -s; \
 	fi

@@ -10,7 +10,7 @@ COMMIT_HASH=$(shell git rev-parse --short HEAD)
 
 SNOOTY_DB_USR = $(shell printenv MONGO_ATLAS_USERNAME)
 SNOOTY_DB_PWD = $(shell printenv MONGO_ATLAS_PASSWORD)
- 
+
 # Parse our published-branches configuration file to get the name of
 # the current "stable" branch. This is weird and dumb, yes.
 STABLE_BRANCH=`grep 'manual' build/docs-tools/data/${PROJECT}-published-branches.yaml | cut -d ':' -f 2 | grep -Eo '[0-9a-z.]+'`
@@ -24,7 +24,7 @@ help: ## Show this help message
 	@printf "  \033[36m%-18s\033[0m %s\n" 'ARGS' 'Arguments to pass to mut-publish'
 
 html: ## Builds this branch's HTML under build/<branch>/html
-	giza make html 
+	giza make html
 
 next-gen-html:
 	# snooty parse and then build-front-end
@@ -44,7 +44,7 @@ STABLE_BRANCH_NEXT_GEN = `grep 'manual' ${REPO_DIR}/published-branches.yaml | cu
 next-gen-stage: ## Host online for review
 	mut-publish public ${STAGING_BUCKET} --prefix="${COMMIT_HASH}/${PROJECT}" --stage ${ARGS}
 	@echo "Hosted at ${STAGING_URL}/${COMMIT_HASH}/${PROJECT}/${USER}/${GIT_BRANCH}/"
-	
+
 next-gen-publish:
 	mut-redirects config/redirects -o public/.htaccess;
 
@@ -70,7 +70,7 @@ next-gen-deploy: build/public ## Deploy to the production bucket
 	@echo "Hosted at ${PRODUCTION_URL}/${PROJECT}/index.html"
 
 	$(MAKE) next-gen-deploy-search-index
-	
+
 deploy-search-index: ## Update the search index for this branch
 	@echo "Building search index"
 	if [ ${STABLE_BRANCH} = ${GIT_BRANCH} ]; then \
@@ -78,14 +78,14 @@ deploy-search-index: ## Update the search index for this branch
 	else \
 		mut-index upload build/public/${GIT_BRANCH} -o bi-connector-${GIT_BRANCH}.json -u ${PRODUCTION_URL}/${PROJECT}/${GIT_BRANCH} -s; \
 	fi
-	
+
 next-gen-deploy-search-index: ## Update the search index for this branch
 	@echo "Building search index"
 	if [ ${STABLE_BRANCH_NEXT_GEN} = ${GIT_BRANCH} ]; then \
-		mut-index upload build/public/${GIT_BRANCH} -o bi-connector-current.json --aliases bi-connector-${GIT_BRANCH} -u ${PRODUCTION_URL}/${PROJECT}/current -g -s; \
+		mut-index upload public -o bi-connector-current.json --aliases bi-connector-${GIT_BRANCH} -u ${PRODUCTION_URL}/${PROJECT}/current -g -s; \
 	else \
-		mut-index upload build/public/${GIT_BRANCH} -o bi-connector-${GIT_BRANCH}.json -u ${PRODUCTION_URL}/${PROJECT}/${GIT_BRANCH} -s; \
+		mut-index upload public -o bi-connector-${GIT_BRANCH}.json -u ${PRODUCTION_URL}/${PROJECT}/${GIT_BRANCH} -s; \
 	fi
-	
+
 redirects:
 	if [ ${GIT_BRANCH} = master ]; then mut-redirects config/redirects -o build/public/.htaccess; fi
